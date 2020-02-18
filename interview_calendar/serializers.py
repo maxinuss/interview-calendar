@@ -2,31 +2,31 @@ from .models import Interviewer, Interview, Candidate, InterviewerSlot, Candidat
 from rest_framework import serializers
 
 
-class InterviewerSerializer(serializers.HyperlinkedModelSerializer):
+class InterviewerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interviewer
         fields = ['id', 'name', 'last_name']
 
 
-class CandidateSerializer(serializers.HyperlinkedModelSerializer):
+class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = ['id', 'name', 'last_name']
 
 
-class InterviewSerializer(serializers.HyperlinkedModelSerializer):
+class InterviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interview
-        fields = ['id', 'candidate', 'start_date', 'end_date']
+        fields = ['id', 'candidate_id', 'start_date', 'end_date']
 
 
-class InterviewerSlotSerializer(serializers.HyperlinkedModelSerializer):
+class InterviewerSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = InterviewerSlot
-        fields = ['id', 'interviewer', 'start_date', 'end_date']
+        fields = ['id', 'interviewer_id', 'start_date', 'end_date']
 
 
-class CandidateSlotSerializer(serializers.HyperlinkedModelSerializer):
+class CandidateSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = CandidateSlot
         fields = ['id', 'candidate', 'start_date', 'end_date']
