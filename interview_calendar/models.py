@@ -23,7 +23,7 @@ class Candidate(Person):
 class Interview(models.Model):
     """ This class set Interview attributes """
 
-    candidate = models.OneToOneField(
+    candidate = models.ForeignKey(
         Candidate,
         on_delete=models.CASCADE,
     )
@@ -34,11 +34,11 @@ class Interview(models.Model):
 class InterviewInterviewer(models.Model):
     """ This class set Interviewers relations with Interviews """
 
-    interview = models.OneToOneField(
+    interview = models.ForeignKey(
         Interview,
         on_delete=models.CASCADE,
     )
-    interviewer = models.OneToOneField(
+    interviewer = models.ForeignKey(
         Interviewer,
         on_delete=models.CASCADE,
     )
@@ -57,7 +57,7 @@ class Slot(models.Model):
 class InterviewerSlot(Slot):
     """ This class set Interviewer Slot attributes inherit from Slot """
 
-    interviewer = models.OneToOneField(
+    interviewer = models.ForeignKey(
         Interviewer,
         on_delete=models.CASCADE,
     )
@@ -66,7 +66,7 @@ class InterviewerSlot(Slot):
 class CandidateSlot(Slot):
     """ This class set Candidate Slot attributes inherit from Slot """
 
-    candidate = models.OneToOneField(
+    candidate = models.ForeignKey(
         Candidate,
         on_delete=models.CASCADE,
     )
