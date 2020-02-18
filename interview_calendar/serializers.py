@@ -17,16 +17,16 @@ class CandidateSerializer(serializers.HyperlinkedModelSerializer):
 class InterviewSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Interview
-        fields = ['id', 'candidate', 'startDate', 'endDate']
+        fields = ['id', 'candidate', 'start_date', 'end_date']
 
 
 class InterviewerSlotSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = InterviewerSlot
-        fields = ['id', 'interviewer', 'startDate', 'endDate']
+        fields = ['id', 'interviewer', 'start_date', 'end_date']
 
 
 class CandidateSlotSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CandidateSlot
-        fields = ['id', 'candidate', 'startDate', 'endDate']
+        fields = ['id', 'candidate', 'start_date', 'end_date']
