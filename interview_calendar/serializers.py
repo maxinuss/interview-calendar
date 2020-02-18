@@ -17,13 +17,13 @@ class CandidateSerializer(serializers.ModelSerializer):
 class InterviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interview
-        fields = ['id', 'candidate_id', 'start_date', 'end_date']
+        fields = ['id', 'candidate', 'start_date', 'end_date']
 
 
 class InterviewerSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = InterviewerSlot
-        fields = ['id', 'interviewer_id', 'start_date', 'end_date']
+        fields = ['id', 'interviewer', 'start_date', 'end_date']
 
 
 class CandidateSlotSerializer(serializers.ModelSerializer):
