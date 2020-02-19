@@ -4,7 +4,7 @@ services:
   interview_calendar_nusspaumer:
     build: .
     command: bash -c "python manage.py makemigrations interview_calendar && python manage.py migrate interview_calendar && python manage.py runserver 0.0.0.0:8000"
-    container_name: interview_calendar_nusspaumer
+    container_name: interview_calendar_nusspaumer_container
     volumes:
       - .:/interview-calendar
     ports:
