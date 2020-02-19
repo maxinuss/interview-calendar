@@ -89,6 +89,17 @@ class InterviewViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, url_path='call/candidates/(?P<candidate_pk>[^/.]+)')
     def call_with_candidate(self, request, candidate_pk):
+        """
+        When this endpoint is called will check available interviewers for a given candidate
+        and generate interviews
+
+        :param request:
+        :type request:
+        :param candidate_pk:
+        :type candidate_pk:
+        :return:
+        :rtype:
+        """
         try:
             candidate = Candidate.objects.get(pk=candidate_pk)
         except ObjectDoesNotExist:
@@ -110,6 +121,17 @@ class InterviewViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, url_path='call/interviewers/(?P<interviewers_pk>[^/.]+)')
     def call_with_interviewer(self, request, interviewers_pk):
+        """
+        When this endpoint is called will check available candidate for a given interviewer(s)
+        and generate interviews
+
+        :param request:
+        :type request:
+        :param interviewers_pk:
+        :type interviewers_pk:
+        :return:
+        :rtype:
+        """
         ids = interviewers_pk.split(",")
         interviewers = Interviewer.objects.filter(pk__in=ids)
         if len(interviewers) == 0:
