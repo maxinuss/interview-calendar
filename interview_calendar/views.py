@@ -1,10 +1,9 @@
 import sys
 from pprint import pprint
-import math
-from itertools import zip_longest
 
 import numpy as np
 from django.db.models.functions import datetime
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -14,6 +13,7 @@ from rest_framework import viewsets, status
 from .serializers import InterviewerSerializer, CandidateSerializer,\
     CandidateSlotSerializer, InterviewSerializer, InterviewerSlotSerializer
 
+ERROR_CANDIDATE_NOT_EXISTS = {"error": 'This candidate does not exists'}
 ERROR_NO_CANDIDATES = {"error": 'The is no candidates ready to talk now'}
 ERROR_NO_INTERVIEWERS = {"error": 'The is no interviewers ready to talk now'}
 
@@ -64,6 +64,15 @@ class InterviewViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, )
     def call(self, request):
+        """
+        When this endpoint is called will check available candidates & interviewers
+        and generate interviews
+
+        :param request:
+        :type request:
+        :return:
+        :rtype:
+        """
         candidate_slots = get_available_candidate_slots()
         if len(candidate_slots) == 0:
             return Response(ERROR_NO_CANDIDATES, status=status.HTTP_404_NOT_FOUND)
@@ -79,7 +88,24 @@ class InterviewViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, url_path='call/candidates/(?P<candidate_pk>[^/.]+)')
     def call_with_candidate(self, request, candidate_pk):
-        pass
+        try:
+            candidate = Candidate.objects.get(pk=candidate_pk)
+        except ObjectDoesNotExist:
+            return Response(ERROR_CANDIDATE_NOT_EXISTS, status=status.HTTP_404_NOT_FOUND)
+
+        candidate_slots = get_available_specific_candidate_slots(candidate)
+        total_candidate_slots = get_available_candidate_slots()
+        if len(candidate_slots) == 0:
+            return Response(ERROR_NO_CANDIDATES, status=status.HTTP_404_NOT_FOUND)
+
+        interviewer_slots = get_available_interviewer_slots()
+        if len(interviewer_slots) == 0:
+            return Response(ERROR_NO_INTERVIEWERS, status=status.HTTP_404_NOT_FOUND)
+
+        interviewers_batch = get_interviewers_batch(interviewer_slots, total_candidate_slots)
+        created_interviews = create_interviews(candidate_slots, interviewers_batch)
+
+        return Response(created_interviews)
 
     @action(detail=False, url_path='call/interviewers/(?P<interviewers_pk>[^/.]+)')
     def call_with_interviewer(self, request, interviewers_pk):
@@ -87,6 +113,16 @@ class InterviewViewSet(viewsets.ModelViewSet):
 
 
 def create_interviews(candidate_slots, interviewers_batch):
+    """
+    Create and return interviews
+
+    :param candidate_slots:
+    :type candidate_slots:
+    :param interviewers_batch:
+    :type interviewers_batch:
+    :return:
+    :rtype:
+    """
     created_interviews = []
     today = datetime.datetime.today()
 
@@ -106,18 +142,52 @@ def create_interviews(candidate_slots, interviewers_batch):
 
 
 def get_available_candidate_slots():
+    """
+    Get available candidate slots
+
+    :return:
+    :rtype:
+    """
     response = []
     today = datetime.datetime.today()
     return CandidateSlot.objects.filter(start_date__lte=today).filter(end_date__gte=today)
 
 
+def get_available_specific_candidate_slots(candidate):
+    """
+    Get available slots for an specific candidate
+
+    :return:
+    :rtype:
+    """
+    response = []
+    today = datetime.datetime.today()
+    return CandidateSlot.objects.filter(start_date__lte=today).filter(end_date__gte=today).filter(candidate=candidate)
+
+
 def get_available_interviewer_slots():
+    """
+    Get available interviewer slots
+
+    :return:
+    :rtype:
+    """
     response = []
     today = datetime.datetime.today()
     return InterviewerSlot.objects.filter(start_date__lte=today).filter(end_date__gte=today)
 
 
 def get_interviewers_batch(interviewer_slots, candidate_slots):
+    """
+    Get batch of interviewers distributed evenly across candidates
+
+    :param interviewer_slots:
+    :type interviewer_slots:
+    :param candidate_slots:
+    :type candidate_slots:
+    :return:
+    :rtype:
+    """
     elements = []
     for interviewer_slot in interviewer_slots:
         elements.append(InterviewerSlotSerializer(interviewer_slot).data)

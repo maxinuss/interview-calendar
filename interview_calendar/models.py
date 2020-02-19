@@ -33,10 +33,21 @@ class Interview(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
-    def get_id(self):
-        return self._get_pk_val
-
     def create(self, candidate, start_date, end_date, interviewers):
+        """
+        Create an interview and interviewers relations.
+
+        :param candidate:
+        :type candidate:
+        :param start_date:
+        :type start_date:
+        :param end_date:
+        :type end_date:
+        :param interviewers:
+        :type interviewers:
+        :return:
+        :rtype:
+        """
         self.candidate = candidate
         self.start_date = start_date
         self.end_date = end_date
@@ -61,6 +72,16 @@ class InterviewInterviewer(models.Model):
     )
 
     def create(self, interviewer, interview):
+        """
+        Create interviewers in an interview
+
+        :param interviewer:
+        :type interviewer:
+        :param interview:
+        :type interview:
+        :return:
+        :rtype:
+        """
         self.interview = interview
         self.interviewer_id = interviewer['interviewer']
         self.save()
