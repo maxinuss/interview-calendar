@@ -14,6 +14,7 @@ from .serializers import InterviewerSerializer, CandidateSerializer,\
     CandidateSlotSerializer, InterviewSerializer, InterviewerSlotSerializer
 
 ERROR_CANDIDATE_NOT_EXISTS = {"error": 'This candidate does not exists'}
+ERROR_INTERVIEWER_NOT_EXISTS = {"error": 'This interviewer does not exists'}
 ERROR_NO_CANDIDATES = {"error": 'The is no candidates ready to talk now'}
 ERROR_NO_INTERVIEWERS = {"error": 'The is no interviewers ready to talk now'}
 
@@ -109,7 +110,27 @@ class InterviewViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, url_path='call/interviewers/(?P<interviewers_pk>[^/.]+)')
     def call_with_interviewer(self, request, interviewers_pk):
-        pass
+        ids = interviewers_pk.split(",")
+        interviewers = Interviewer.objects.filter(pk__in=ids)
+        if len(interviewers) == 0:
+            return Response(ERROR_INTERVIEWER_NOT_EXISTS, status=status.HTTP_404_NOT_FOUND)
+
+        candidate_slots = get_available_candidate_slots(limit=1)
+        if len(candidate_slots) == 0:
+            return Response(ERROR_NO_CANDIDATES, status=status.HTTP_404_NOT_FOUND)
+
+        interviewer_slots = get_available_specific_interviewer_slots(interviewers)
+        if len(interviewer_slots) == 0:
+            return Response(ERROR_NO_INTERVIEWERS, status=status.HTTP_404_NOT_FOUND)
+
+        elements = []
+        for interviewer_slot in interviewer_slots:
+            elements.append(InterviewerSlotSerializer(interviewer_slot).data)
+
+        interviewers_batch = [elements]
+        created_interviews = create_interviews(candidate_slots, interviewers_batch)
+
+        return Response(created_interviews)
 
 
 def create_interviews(candidate_slots, interviewers_batch):
@@ -123,6 +144,7 @@ def create_interviews(candidate_slots, interviewers_batch):
     :return:
     :rtype:
     """
+
     created_interviews = []
     today = datetime.datetime.today()
 
@@ -141,16 +163,17 @@ def create_interviews(candidate_slots, interviewers_batch):
     return created_interviews
 
 
-def get_available_candidate_slots():
+def get_available_candidate_slots(limit=None):
     """
     Get available candidate slots
 
     :return:
     :rtype:
     """
-    response = []
     today = datetime.datetime.today()
-    return CandidateSlot.objects.filter(start_date__lte=today).filter(end_date__gte=today)
+    return CandidateSlot.objects\
+        .filter(start_date__lte=today)\
+        .filter(end_date__gte=today)[:limit]
 
 
 def get_available_specific_candidate_slots(candidate):
@@ -160,9 +183,22 @@ def get_available_specific_candidate_slots(candidate):
     :return:
     :rtype:
     """
-    response = []
     today = datetime.datetime.today()
     return CandidateSlot.objects.filter(start_date__lte=today).filter(end_date__gte=today).filter(candidate=candidate)
+
+
+def get_available_specific_interviewer_slots(interviewers):
+    """
+    Get available slots for an specific interviewer(s)
+
+    :return:
+    :rtype:
+    """
+    today = datetime.datetime.today()
+    return InterviewerSlot.objects\
+        .filter(start_date__lte=today)\
+        .filter(end_date__gte=today)\
+        .filter(interviewer__in=interviewers)
 
 
 def get_available_interviewer_slots():
@@ -172,7 +208,6 @@ def get_available_interviewer_slots():
     :return:
     :rtype:
     """
-    response = []
     today = datetime.datetime.today()
     return InterviewerSlot.objects.filter(start_date__lte=today).filter(end_date__gte=today)
 
