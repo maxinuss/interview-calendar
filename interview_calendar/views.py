@@ -92,7 +92,7 @@ class InterviewViewSet(viewsets.ModelViewSet):
     def call_with_candidate(self, request, candidate_pk):
         """
         When this endpoint is called will check available interviewers for a given candidate
-        and generate interviews
+        and generate the interview
 
         :param request:
         :type request:
@@ -124,7 +124,7 @@ class InterviewViewSet(viewsets.ModelViewSet):
     def call_with_interviewer(self, request, interviewers_pk):
         """
         When this endpoint is called will check available candidate for a given interviewer(s)
-        and generate interviews
+        and generate the interview
 
         :param request:
         :type request:
