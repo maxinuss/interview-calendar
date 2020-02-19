@@ -27,7 +27,7 @@ What we are looking for
 #### Running the application
 * Clone from github
 * Go to the application root folder and run
-``` docker-compose up ```
+``` docker-compose up -d```
 
 #### Endpoints
 
@@ -45,3 +45,10 @@ You can import Postman collection or follow the online documentation.
 * You can see available slots from "List Interviewers slots" and "List Candidates slots" endpoints.
 
 #### Testing
+
+In order to run test, you must enter into the docker container.
+Run this commands:
+
+* To get inside the container ```docker exec -it interview_calendar_nusspaumer_container bash```
+* Once you are in the container: ```python3 manage.py test```
+  
