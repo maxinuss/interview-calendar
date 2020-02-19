@@ -1,4 +1,7 @@
 """ This module contains models """
+import sys
+from pprint import pprint
+
 from django.db import models
 
 
@@ -30,6 +33,20 @@ class Interview(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
+    def get_id(self):
+        return self._get_pk_val
+
+    def create(self, candidate, start_date, end_date, interviewers):
+        self.candidate = candidate
+        self.start_date = start_date
+        self.end_date = end_date
+        self.save()
+
+        if len(interviewers) > 0:
+            for interviewer in interviewers:
+                interview_interviewer = InterviewInterviewer()
+                interview_interviewer.create(interviewer=interviewer, interview=self)
+
 
 class InterviewInterviewer(models.Model):
     """ This class set Interviewers relations with Interviews """
@@ -42,6 +59,11 @@ class InterviewInterviewer(models.Model):
         Interviewer,
         on_delete=models.CASCADE,
     )
+
+    def create(self, interviewer, interview):
+        self.interview = interview
+        self.interviewer_id = interviewer['interviewer']
+        self.save()
 
 
 class Slot(models.Model):

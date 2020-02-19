@@ -9,7 +9,6 @@ router.register(r'candidate-slots', views.CandidateSlotViewSet)
 router.register(r'interviewer-slots', views.InterviewerSlotViewSet)
 router.register(r'interviews', views.InterviewViewSet)
 
-
 urlpatterns = [
     path('', include(router.urls)),
 ]
