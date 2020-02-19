@@ -186,7 +186,7 @@ def create_interviews(candidate_slots, interviewers_batch):
 
         return created_interviews
     except IntegrityError as e:
-        return {"error": str(e)}
+        return {"error": "There is no available interviews at this time"}
 
 
 def get_available_candidate_slots(limit=None):
