@@ -34,7 +34,7 @@ What we are looking for
 You can import Postman collection or follow the online documentation.
 
 * Collection: https://www.getpostman.com/collections/3a8e51c715f629e35a67
-* Documentation: 
+* Documentation: https://documenter.getpostman.com/view/4537006/SzKSTzM8
 
 #### Usage
 
