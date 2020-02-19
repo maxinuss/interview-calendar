@@ -7,9 +7,10 @@ from django.db import models
 
 class Person(models.Model):
     """ This class set Person attributes """
-    class Meta:  # pylint: disable=too-few-public-methods
-        """ This class set Abstract attribute """
+    class Meta:
+        """ This class set Abstract & unique_together attributes """
         abstract = True
+        unique_together = ['name', 'last_name', ]
 
     name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=100)
@@ -25,6 +26,10 @@ class Candidate(Person):
 
 class Interview(models.Model):
     """ This class set Interview attributes """
+    class Meta:
+        """ This class set Abstract & unique_together attributes """
+        abstract = False
+        unique_together = ['candidate', 'start_date', 'end_date', ]
 
     candidate = models.ForeignKey(
         Candidate,
@@ -61,6 +66,10 @@ class Interview(models.Model):
 
 class InterviewInterviewer(models.Model):
     """ This class set Interviewers relations with Interviews """
+    class Meta:
+        """ This class set Abstract & unique_together attributes """
+        abstract = False
+        unique_together = ['interview', 'interviewer', ]
 
     interview = models.ForeignKey(
         Interview,
@@ -99,6 +108,10 @@ class Slot(models.Model):
 
 class InterviewerSlot(Slot):
     """ This class set Interviewer Slot attributes inherit from Slot """
+    class Meta:
+        """ This class set Abstract & unique_together attributes """
+        abstract = False
+        unique_together = ['start_date', 'end_date', 'interviewer', ]
 
     interviewer = models.ForeignKey(
         Interviewer,
@@ -108,6 +121,10 @@ class InterviewerSlot(Slot):
 
 class CandidateSlot(Slot):
     """ This class set Candidate Slot attributes inherit from Slot """
+    class Meta:
+        """ This class set Abstract & unique_together attributes """
+        abstract = False
+        unique_together = ['start_date', 'end_date', 'candidate', ]
 
     candidate = models.ForeignKey(
         Candidate,
