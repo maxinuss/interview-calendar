@@ -2,6 +2,7 @@ import sys
 from pprint import pprint
 
 import numpy as np
+from django.db import IntegrityError
 from django.db.models.functions import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -134,7 +135,7 @@ class InterviewViewSet(viewsets.ModelViewSet):
         """
         ids = interviewers_pk.split(",")
         interviewers = Interviewer.objects.filter(pk__in=ids)
-        if len(interviewers) == 0:
+        if len(interviewers) == 0 or len(interviewers) != len(ids):
             return Response(ERROR_INTERVIEWER_NOT_EXISTS, status=status.HTTP_404_NOT_FOUND)
 
         candidate_slots = get_available_candidate_slots(limit=1)
@@ -170,19 +171,22 @@ def create_interviews(candidate_slots, interviewers_batch):
     created_interviews = []
     today = datetime.datetime.today()
 
-    for idx, val in enumerate(candidate_slots):
-        candidate = val.candidate
+    try:
+        for idx, val in enumerate(candidate_slots):
+            candidate = val.candidate
 
-        interview = Interview()
-        interview.create(
-            candidate=candidate,
-            start_date=today,
-            end_date=val.end_date,
-            interviewers=interviewers_batch[idx]
-        )
-        created_interviews.append(InterviewSerializer(interview).data)
+            interview = Interview()
+            interview.create(
+                candidate=candidate,
+                start_date=today,
+                end_date=val.end_date,
+                interviewers=interviewers_batch[idx]
+            )
+            created_interviews.append(InterviewSerializer(interview).data)
 
-    return created_interviews
+        return created_interviews
+    except IntegrityError as e:
+        return {"error": str(e)}
 
 
 def get_available_candidate_slots(limit=None):
